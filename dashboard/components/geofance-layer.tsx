@@ -31,6 +31,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogMedia
+} from "@/components/ui/alert-dialog"
+
 // Context
 import { ToolsContext, Tools } from "./context/tools-context";
 import { GeoFenceEditContext, GeoFenceEditMode} from "./context/geofence-edit-context";
@@ -95,25 +108,26 @@ export function GeoFenceLayer(){
                                     <Button variant='ghost' size={'icon-xs'}>{item.locked?<LockIcon/>:<UnlockIcon/>}</Button>
                                     <Button variant='ghost' size={'icon-xs'}>{item.visible?<EyeIcon/>:<EyeOffIcon/>}</Button>
                                     <Button variant='ghost' size={'icon-xs'}><Edit2Icon/></Button>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
                                             <Button variant='destructive' size={'icon-xs'}><Trash2Icon/></Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-sm">
-                                            <DialogHeader>
-                                                <DialogTitle>Remove Geofence</DialogTitle>
-                                                <DialogDescription>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent size="sm">
+                                            <AlertDialogHeader>
+                                                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                                                    <Trash2Icon />
+                                                </AlertDialogMedia>
+                                                <AlertDialogTitle>Remove Geofence?</AlertDialogTitle>
+                                                <AlertDialogDescription>
                                                     Remove this <span className="font-medium underline">{item.name}</span> from here. Click delete to remove.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <DialogFooter>
-                                                <DialogClose asChild>
-                                                    <Button variant="outline">Cancel</Button>
-                                                </DialogClose>
-                                                <Button variant='destructive' type="submit">Delete</Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel variant='outline'>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction variant='destructive'>Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </ItemActions>
                             </Item>
                             )
