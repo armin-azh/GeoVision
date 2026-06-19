@@ -12,9 +12,13 @@ import { GeoFenceLayer } from "@/components/geofance-layer";
 import { ToolsContext, Tools} from "@/components/context/tools-context";
 import { GeoFenceEditContext, GeoFenceEditMode} from "@/components/context/geofence-edit-context";
 
+// types
+import { Geofence } from "@/types/model/geofence";
+
 export default function Home() {
   const [tool, setTool] = useState<Tools>(Tools.MapView);
   const [mode, setMode] = useState<GeoFenceEditMode|null>(null);
+  const [geofences, setGeofences] = useState<Geofence[]>([]);
 
   useEffect(()=>{
     if(tool === Tools.MapView){
@@ -24,7 +28,7 @@ export default function Home() {
 
   return (
     <ToolsContext.Provider value={{tool, setTool}}>
-      <GeoFenceEditContext.Provider value={{mode, setMode}}>
+      <GeoFenceEditContext.Provider value={{mode, setMode, geofences, setGeofences}}>
           <main className="relative h-screen overflow-hidden">
             {/* --- Sidebar Menu --- */}
             <SidebarMenu/>

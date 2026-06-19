@@ -16,7 +16,6 @@ import {
   TerraDrawSelectMode,
 } from "terra-draw";
 
-
 // Context
 import { ToolsContext, Tools } from "../context/tools-context";
 import { GeoFenceEditContext, GeoFenceEditMode } from "../context/geofence-edit-context";
@@ -26,7 +25,16 @@ import { Button } from "../ui/button";
 
 // Icons
 import { PlusIcon, MinusIcon } from "lucide-react";
-import { circle, polygon } from "@turf/turf";
+
+// types
+import type { HexColor } from "terra-draw";
+
+const defaultGeofenceColors = {
+  circle: '#3b82f6',
+  polygon: '#3b82f6',
+  rectangle: '#3b82f6',
+}
+
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -159,30 +167,30 @@ export function MapView() {
 
             new TerraDrawPolygonMode({
               styles: {
-                fillColor: "#3b82f6",
+                fillColor: defaultGeofenceColors['polygon'] as HexColor,
                 fillOpacity: 0.15,
 
-                outlineColor: "#3b82f6",
+                outlineColor: defaultGeofenceColors['polygon'] as HexColor,
                 outlineWidth: 1,
               },
             }),
 
             new TerraDrawRectangleMode({
               styles: {
-                fillColor: "#3b82f6",
+                fillColor: defaultGeofenceColors['rectangle'] as HexColor,
                 fillOpacity: 0.15,
 
-                outlineColor: "#3b82f6",
+                outlineColor: defaultGeofenceColors['rectangle'] as HexColor,
                 outlineWidth: 1,
               },
             }),
 
             new TerraDrawCircleMode({
               styles: {
-                fillColor: "#3b82f6",
+                fillColor: defaultGeofenceColors['circle'] as HexColor,
                 fillOpacity: 0.15,
 
-                outlineColor: "#3b82f6",
+                outlineColor: defaultGeofenceColors['circle'] as HexColor,
                 outlineWidth: 1,
               },
             }),
@@ -190,8 +198,22 @@ export function MapView() {
         });
 
         draw.start();
+
+        // Add Event Listener 
+        draw.on('finish', (featureId, ctx)=>{
+            // action == draw means new feature id has been added
+            if(ctx.action === 'draw'){
+                const feature = draw.getSnapshot().find(f=>f.id ===featureId);
+                if(!feature) return;
+                const color = defaultGeofenceColors[ctx.mode as keyof typeof defaultGeofenceColors]
+                geoMode?.setGeofences(prev=>([...prev,{type: ctx.mode, featureId: featureId.toString(), id: crypto.randomUUID(), visible: true, locked: false, color, name: `Geofence ${prev.length + 1}`}]));
+            }
+        });
+
         drawRef.current = draw;
       });
+
+      
 
       miniMap.dragPan.disable();
       miniMap.scrollZoom.disable();

@@ -1,5 +1,8 @@
 "use client"
 
+// types 
+import { Geofence } from "@/types/model/geofence";
+
 import React from "react";
 
 export enum GeoFenceEditMode {
@@ -12,7 +15,11 @@ export enum GeoFenceEditMode {
 
 type GeoFenceEditType = {
     mode: GeoFenceEditMode | null;
-    setMode: React.Dispatch<React.SetStateAction<GeoFenceEditMode|null>>
+    setMode: React.Dispatch<React.SetStateAction<GeoFenceEditMode|null>>,
+    
+    // States to keep geofence and edit them
+    geofences: Geofence[],
+    setGeofences: React.Dispatch<React.SetStateAction<Geofence[]>>
 }
 
 export const GeoFenceEditContext = React.createContext<GeoFenceEditType|undefined>(undefined);
