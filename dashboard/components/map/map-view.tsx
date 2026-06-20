@@ -27,7 +27,7 @@ import { Button } from "../ui/button";
 import { PlusIcon, MinusIcon } from "lucide-react";
 
 // types
-import type { HexColor } from "terra-draw";
+import type { HexColor, GeoJSONStoreFeatures} from "terra-draw";
 
 const defaultGeofenceColors = {
   circle: '#3b82f6',
@@ -41,11 +41,17 @@ export function MapView() {
   const miniMapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const miniMapRef = useRef<maplibregl.Map | null>(null);
-  const drawRef = useRef<TerraDraw | null>(null);
   
   const geoMode = useContext(GeoFenceEditContext);
   const tools = useContext(ToolsContext);
 
+  if (!geoMode) {
+    throw new Error(
+      "MapView must be used inside GeoFenceProvider"
+    );
+  }
+
+  const drawRef = geoMode.drawRef;
 
   useEffect(()=>{
     if(!drawRef) return
@@ -167,30 +173,33 @@ export function MapView() {
 
             new TerraDrawPolygonMode({
               styles: {
-                fillColor: defaultGeofenceColors['polygon'] as HexColor,
-                fillOpacity: 0.15,
+                fillColor: ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['polygon'] as HexColor)),
+                fillOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 0.15)),
 
-                outlineColor: defaultGeofenceColors['polygon'] as HexColor,
+                outlineColor:  ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['polygon'] as HexColor)),
+                outlineOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 1)),
                 outlineWidth: 1,
               },
             }),
 
             new TerraDrawRectangleMode({
               styles: {
-                fillColor: defaultGeofenceColors['rectangle'] as HexColor,
-                fillOpacity: 0.15,
+                fillColor: ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['rectangle'] as HexColor)),
+                fillOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 0.15)),
 
-                outlineColor: defaultGeofenceColors['rectangle'] as HexColor,
+                outlineColor:  ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['rectangle'] as HexColor)),
+                outlineOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 1)),
                 outlineWidth: 1,
               },
             }),
 
             new TerraDrawCircleMode({
               styles: {
-                fillColor: defaultGeofenceColors['circle'] as HexColor,
-                fillOpacity: 0.15,
+                fillColor: ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['circle'] as HexColor)),
+                fillOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 0.15)),
 
-                outlineColor: defaultGeofenceColors['circle'] as HexColor,
+                outlineColor:  ((feature: GeoJSONStoreFeatures) => (feature.properties?.selectedColor?feature.properties.selectedColor as HexColor :defaultGeofenceColors['circle'] as HexColor)),
+                outlineOpacity: ((feature: GeoJSONStoreFeatures) => (feature.properties?.visible === false ? 0 : 1)),
                 outlineWidth: 1,
               },
             }),
@@ -296,6 +305,7 @@ export function MapView() {
     initializeMap();
 
     return () => {
+      drawRef?.current?.stop();
       mapRef?.current?.remove();
       miniMapRef.current?.remove();
     };

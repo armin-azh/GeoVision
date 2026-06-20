@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect} from "react";
+import { useState, useEffect, useContext} from "react";
 
 // Components
 import { MapView } from "@/components/map/map-view";
@@ -10,25 +10,22 @@ import { GeoFenceLayer } from "@/components/geofance-layer";
 
 // Context
 import { ToolsContext, Tools} from "@/components/context/tools-context";
-import { GeoFenceEditContext, GeoFenceEditMode} from "@/components/context/geofence-edit-context";
-
-// types
-import { Geofence } from "@/types/model/geofence";
+import { GeoFenceEditContext, GeoFenceProvider} from "@/components/context/geofence-edit-context";
 
 export default function Home() {
   const [tool, setTool] = useState<Tools>(Tools.MapView);
-  const [mode, setMode] = useState<GeoFenceEditMode|null>(null);
-  const [geofences, setGeofences] = useState<Geofence[]>([]);
+  
+  const geoFence = useContext(GeoFenceEditContext);
 
   useEffect(()=>{
     if(tool === Tools.MapView){
-      setMode(null);
+      geoFence?.setMode(null);
     }
-  },[tool])
+  },[tool, geoFence?.setMode])
 
   return (
     <ToolsContext.Provider value={{tool, setTool}}>
-      <GeoFenceEditContext.Provider value={{mode, setMode, geofences, setGeofences}}>
+      <GeoFenceProvider>
           <main className="relative h-screen overflow-hidden">
             {/* --- Sidebar Menu --- */}
             <SidebarMenu/>
@@ -45,7 +42,7 @@ export default function Home() {
             <GeoFenceLayer/>
 
           </main>
-      </GeoFenceEditContext.Provider>
+      </GeoFenceProvider>
     </ToolsContext.Provider>
 
   );

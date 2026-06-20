@@ -13,12 +13,15 @@ import {
 // Context
 import { ToolsContext, Tools} from "./context/tools-context";
 
+// Components
+import { Button } from "./ui/button";
+
 
 const Setup = {
     items: [
-        {name: 'devices', icon: <CpuIcon className="size-5"/>, tool: Tools.MapView},
-        {name: 'geofences', icon: <VectorSquareIcon className="size-5"/>, tool: Tools.GeoFence},
-        {name: 'heatmap', icon: <FlameIcon className="size-5"/>, tool: null},
+        {name: 'devices', icon: <CpuIcon className="size-4"/>, tool: Tools.MapView},
+        {name: 'geofences', icon: <VectorSquareIcon className="size-4"/>, tool: Tools.GeoFence},
+        {name: 'heatmap', icon: <FlameIcon className="size-4"/>, tool: null},
 
     ]
 }
