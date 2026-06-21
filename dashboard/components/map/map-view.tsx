@@ -3,8 +3,14 @@
 import React, { useEffect, useRef, useContext} from "react";
 import { cn } from "@/lib/utils";
 
-import { MapOptions } from "maplibre-gl";
+import { createRoot } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
+
 import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+
+import { MapOptions, Marker } from "maplibre-gl";
+
 
 import { TerraDraw } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
@@ -24,7 +30,7 @@ import { GeoFenceEditContext, GeoFenceEditMode } from "../context/geofence-edit-
 import { Button } from "../ui/button";
 
 // Icons
-import { PlusIcon, MinusIcon } from "lucide-react";
+import { PlusIcon, MinusIcon, CarIcon} from "lucide-react";
 
 // types
 import type { HexColor, GeoJSONStoreFeatures} from "terra-draw";
@@ -96,6 +102,7 @@ export function MapView() {
         zoom: 11,
         pitch: 0,
         bearing: 0,
+        attributionControl: false
       };
 
       const miniMapConfig: MapOptions = {
@@ -106,6 +113,7 @@ export function MapView() {
         pitch: 0,
         bearing: 0,
         interactive: false,
+        attributionControl: false
       };
 
 
@@ -123,6 +131,67 @@ export function MapView() {
       map.setMaxPitch(0);
 
       map.on("load", ()=>{
+        map.addSource("points", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "Point",
+                coordinates: [51.389, 35.6892],
+              },
+            },
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "Point",
+                coordinates: [51.389, 35.6892],
+              },
+            },
+          ],
+        },
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50,
+      });
+
+      map.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "points",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#51bbd6",
+          "circle-radius": 18,
+        },
+      });
+
+      map.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "points",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-size": 12,
+        },
+      });
+
+      map.addLayer({
+        id: "unclustered-point",
+        type: "circle",
+        source: "points",
+        filter: ["!has", "point_count"],
+        paint: {
+          "circle-color": "#f28cb1",
+          "circle-radius": 6,
+        },
+      });
+
         const draw = new TerraDraw({
           adapter: new TerraDrawMapLibreGLAdapter({
             map,
@@ -315,8 +384,9 @@ export function MapView() {
     <React.Fragment>
       <div
         ref={mapContainer}
-        className="absolute inset-0"
+        className="w-full h-full"
       />
+
 
       <div className={cn('fixed flex gap-2 bottom-4 right-4 z-50 transition-transform duration-300 ', {'translate-x-full right-0': tools?.tool === Tools.GeoFence})}>
         {/* --- Control Buttons --- */}
